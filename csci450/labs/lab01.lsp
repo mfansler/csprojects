@@ -1,3 +1,8 @@
+; Mervin Fansler
+; CSCI 450
+; Lab 1: Lisp Intro
+; 8 February 2014
+
 ; my-rotate
 
 (defun my-rotate (xs) (
