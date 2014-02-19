@@ -21,11 +21,18 @@
 
 ; path
 
-(defun path (dxs) (mapcar 'get-direction dxs))
+(defun path (dxs) (reverse (remove NIL (mapcar 'get-direction dxs))))
 
 ; remove-redundant
 
-(defun remove-redundant (dxs dys) NIL)
+(defun remove-redundant (dxs dys) (
+  remove-if 
+    #'(lambda (dx) (
+      some #'(lambda (dy) (same-state dx dy)) dys
+    ))
+	dxs
+  )
+)
 
 ; moves 
 
