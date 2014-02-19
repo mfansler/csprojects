@@ -36,12 +36,17 @@
 
 ; moves 
 
-(defun moves (xs) (multiple-value-bind (r c) (floor (position 'e xs) 3) (
-  remove NIL (list
-    (if (> r 0) 'U NIL)
-    (if (< r 2) 'D NIL)
-    (if (> c 0) 'L NIL)
-    (if (< c 2) 'R NIL)
+(defun get-valid-directions (i) (
+  multiple-value-bind (r c) (floor i 3) (
+    remove NIL (list
+      (if (> r 0) 'U NIL)
+      (if (< r 2) 'D NIL)
+      (if (> c 0) 'L NIL)
+      (if (< c 2) 'R NIL)
+    )
   )
-)
+))
+
+(defun moves (xs) (
+  get-valid-directions (position 'e xs)
 ))

@@ -57,6 +57,13 @@
   )
 )
 
+(define-test get-valid-directions
+  (assert-equal '(U D L R) (get-valid-directions 4))
+  (assert-equal '(D R) (get-valid-directions 0))
+  (assert-equal '(D L) (get-valid-directions 2))
+  (assert-equal '(U D L) (get-valid-directions 5))
+)
+
 (define-test moves
   (assert-equal
 	'((D (2 7 3 4 e 8 1 5 6))
