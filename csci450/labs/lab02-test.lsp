@@ -64,6 +64,25 @@
   (assert-equal '(U D L) (get-valid-directions 5))
 )
 
+(define-test swap-values
+  (assert-equal '(1 4 3 2 5) (swap-values 2 4 '(1 2 3 4 5)))
+  (assert-equal '(1 0 1 0 1) (swap-values 0 1 '(0 1 0 1 0)))
+)
+
+(define-test swap-values-at
+  (assert-equal '(1 4 3 2 5) (swap-values-at 1 3 '(1 2 3 4 5)))
+  (assert-equal '(1 0 1 0 1) (swap-values-at 0 1 '(0 1 0 1 0)))
+)
+
+(define-test swap-at
+  (assert-equal '(1 3 2 4 5) (swap-at 1 2 '(1 2 3 4 5)))
+  (assert-equal '(1 4 3 2 5) (swap-at 1 3 '(1 2 3 4 5)))
+  (assert-equal '(2 1 3 4 5) (swap-at 0 1 '(1 2 3 4 5)))
+  (assert-equal '(5 2 3 4 1) (swap-at 0 4 '(1 2 3 4 5)))
+  (assert-equal '(5 2 3 4 1) (swap-at 4 0 '(1 2 3 4 5)))
+  (assert-equal '(1 2 3 4 5) (swap-at 3 3 '(1 2 3 4 5)))
+)
+
 (define-test moves
   (assert-equal
 	'((D (2 7 3 4 e 8 1 5 6))
