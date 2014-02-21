@@ -1,7 +1,10 @@
-; Mervin Fansler
-; CSCI 450
-; Lab 2: More Intro
-; 19 February 2014
+;;;;
+;       File: lab02.lsp
+;     Author: Mervin Fansler
+;      Class: CSCI 450
+; Assignment: Lab 2: More Intro
+;       Date: 20 February 2014
+;;;;
 
 ; goal-state
 
@@ -34,6 +37,11 @@
   )
 )
 
+; get-valid-directions
+; 
+;  param: i - board index
+; return: list of valid directions that the empty tile could move in
+
 (defun get-valid-directions (i) (
   multiple-value-bind (r c) (floor i 3) (
     append
@@ -44,18 +52,13 @@
   )
 ))
 
-(defun swap-values (a b xs) (
-  reduce #'(lambda (ys x) (
-    cond
-	((equal a x) (append ys (list b)))
-	((equal b x) (append ys (list a)))
-	(T (append ys (list x)))
-  )) xs :initial-value ()
-))
-
-(defun swap-values-at (m n xs) (
-  swap-values (nth m xs) (nth n xs) xs
-))
+; swap-at
+; 
+; params:
+;   m - 1st swapping index
+;   n - 2nd swapping index
+;   xs - input list
+; return: list with values at specified indices swapped
 
 (defun swap-at (m n xs) (
   cond
@@ -76,10 +79,10 @@
 (defun moves (xs) (let ((p (position 'e xs))) (
   mapcar #'(lambda (d) (
     cond
-	((eq d 'U) (list 'U (swap-values-at p (- p 3) xs)))
-	((eq d 'D) (list 'D (swap-values-at p (+ p 3) xs)))
-	((eq d 'L) (list 'L (swap-values-at p (- p 1) xs)))
-	((eq d 'R) (list 'R (swap-values-at p (+ p 1) xs)))
+	((eq d 'U) (list 'U (swap-at p (- p 3) xs)))
+	((eq d 'D) (list 'D (swap-at p (+ p 3) xs)))
+	((eq d 'L) (list 'L (swap-at p (- p 1) xs)))
+	((eq d 'R) (list 'R (swap-at p (+ p 1) xs)))
   ))
   (get-valid-directions p)
 )))
