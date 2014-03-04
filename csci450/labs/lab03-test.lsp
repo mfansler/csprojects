@@ -1,7 +1,9 @@
 ; lab03-test.lsp
 
-(load "./lab02.lsp")
-(load "./lab03.lsp")
+; (load "./lab02.lsp")
+; (load "./lab03.lsp")
+(load "./lab03-concat.lsp")
+
 (load "./lisp-unit.lisp")
 (use-package :lisp-unit)
 
