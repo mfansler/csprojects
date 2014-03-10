@@ -68,7 +68,20 @@
 
 ; search-id
 
-(defun search-a* (dxss f) NIL)
+(defun search-a* (dxss f) (let ((f-order (better f))) (
+  cond
+  ((null dxss) NIL) ; ran out of nodes
+  ((goal-state (get-state (caar dxss))) (path (car dxss))) ; found solution
+  (T ( ; keep searching
+    search-a* (
+      merge 'list 
+	    (cdr dxss) ; remaining paths
+	    (sort (extend-path (car dxss)) f-order) ; extend first, sort by heuristic
+	    f-order ; merge by heuristic
+	  )
+	  f
+	))
+)))
 
 ; sss
 
@@ -78,4 +91,15 @@
   ((eq type 'DFS) (search-dfs-fd dxss depth))
   ((eq type 'ID) (search-id dxss))
   ((eq type 'A*) (search-a* dxss f))
-))) 
+)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Answers for performance results
+;
+; 1. A* surpasses the others.
+; 2. The manhattan-f (0.016 sec) heuristic outperforms out-of-place-f (0.047 sec).
+; 3. By setting the depth parameter to 11, the DFS performance improves (0.062 sec)
+;    but does not surpass either of the A* runs.
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
