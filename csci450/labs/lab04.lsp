@@ -106,7 +106,7 @@
 (defun sss (xs &key (type 'BFS) (depth 7) (f 'out-of-place-f)) (let ((dxss (make-open-init xs))) (
   cond
   ((eq type 'BFS) (search-bfs dxss))
-  ((eq type 'DFS) (search-dfs-fd dxss depth))
+  ((eq type 'DFS) (search-dfs dxss depth))
   ((eq type 'ID) (search-id dxss))
   ((eq type 'A*) (search-a* dxss f))
 )))
