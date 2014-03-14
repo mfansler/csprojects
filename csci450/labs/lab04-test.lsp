@@ -74,6 +74,9 @@
   (assert-equal '(U R R D D L U L U R D)
     (search-a* (make-open-init '(2 8 1 e 6 3 7 5 4)) 'manhattan-f)
   )
+  (assert-equal NIL
+    (search-a* () 'manhattan-f)
+  )
 )
 
 (define-test sss
