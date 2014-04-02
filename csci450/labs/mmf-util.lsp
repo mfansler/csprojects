@@ -63,3 +63,35 @@
   )))
   (T xs)
 ))
+
+; range
+; param:
+;   m - number to begin range at
+;   n - maximum bound for range (may not appear in result)
+;   k - increment for elements in range
+; return:
+;   sequence of numbers (m, m+k, m+2k,..., m+ik)
+;   where n - (m+ik) < k
+(defun range (m n &optional (k 1)) (
+  cond
+    ((> 0 (* (- n m) k)) ())
+	(T (cons m (range (+ m k) n k)))
+))
+
+; explode
+(defun explode (s) (map 'list #'(lambda (c) c) s))
+
+; zip
+(defun zip (xs ys) (mapcar #'list xs ys))
+
+; zip-with-positions
+(defun zip-with-positions (xs) (
+  zip xs (range 0 (- (length xs) 1))
+))
+
+; position-all
+(defun position-all (hs needle) (
+  mapcar #'cadr (
+    remove-if-not #'(lambda (e) (equal needle (car e)))
+	  (zip-with-positions hs))
+))
