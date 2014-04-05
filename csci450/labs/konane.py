@@ -364,21 +364,59 @@ class MinimaxPlayer(Konane, Player):
     def initialize(self, side):
         self.side = side
         self.name = "MiniMax"
+        self.h = self.movesAvailable
     
-    def numPieces(self, side, board):
-        return sum(map(lambda xs: xs.count(side), board))
-        
     def getMove(self, board):
         moves = self.generateMoves(board, self.side)
         n = len(moves)
         if n == 0:
             return []
+        elif n == 1:
+            return moves[0]
         else:
-            moves.sort(lambda m1, m2:
+            """moves.sort(lambda m1, m2:
                 self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m1)) -
                 self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m2)))
             return moves[0]
-
+            """
+            return self.miniMaxDecision(board, moves)
+    
+    def miniMaxDecision(self, board, moves):
+        return max(moves, key=lambda m: self.getMinValue(self.nextBoard(board, self.side, m), self.limit - 1))
+    
+    def getMinValue(self, board, depth):
+        piece = self.opponent(self.side)
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            if len(moves) == 0:
+                return float("inf")
+            else:
+                return min(map(lambda m: self.getMaxValue(self.nextBoard(board, piece, m), depth - 1), moves))
+                
+    def getMaxValue(self, board, depth):
+        piece = self.side
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            if len(moves) == 0:
+                return -float("inf")
+            else:
+                return max(map(lambda m: self.getMinValue(self.nextBoard(board, piece, m), depth - 1), moves)) 
+    
+    def numPieces(self, side, board):
+        return sum(map(lambda xs: xs.count(side), board))
+    
+    def movesAvailable(self, board):
+        return len(self.generateMoves(board, self.side))
+        
+    """def leastOpponentPieces(self, board):
+        return (lambda m1, m2:
+                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m1)) -
+                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m2)))
+    """
 game = Konane(8)
-game.playOneGame(MinimaxPlayer(8,1), HumanPlayer(), 1)
+game.playNGames(10, MinimaxPlayer(8,3), RandomPlayer(8), 0)
 
