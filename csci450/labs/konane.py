@@ -365,7 +365,7 @@ class MinimaxPlayer(Konane, Player):
         self.side = side
         self.name = "MiniMax"
     
-    def numPieces(side, board):
+    def numPieces(self, side, board):
         return sum(map(lambda xs: xs.count(side), board))
         
     def getMove(self, board):
@@ -374,10 +374,11 @@ class MinimaxPlayer(Konane, Player):
         if n == 0:
             return []
         else:
-            return moves.sort(lambda m1,m2:
-                self.numPieces(self.side, self.nextBoard(self, board, self.side, m1)) -
-                self.numPieces(self.side, self.nextBoard(self, board, self.side, m2)))
+            moves.sort(lambda m1, m2:
+                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m1)) -
+                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m2)))
+            return moves[0]
 
-game = Konane(6)
-game.playOneGame(MinimaxPlayer(6,1), RandomPlayer(6), 1)
+game = Konane(8)
+game.playOneGame(MinimaxPlayer(8,1), HumanPlayer(), 1)
 
