@@ -364,7 +364,7 @@ class MinimaxPlayer(Konane, Player):
     def initialize(self, side):
         self.side = side
         self.name = "MiniMax"
-        self.h = self.movesAvailable
+        self.h = self.leastOpponentMoves
     
     def getMove(self, board):
         moves = self.generateMoves(board, self.side)
@@ -374,49 +374,60 @@ class MinimaxPlayer(Konane, Player):
         elif n == 1:
             return moves[0]
         else:
-            """moves.sort(lambda m1, m2:
-                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m1)) -
-                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m2)))
-            return moves[0]
-            """
             return self.miniMaxDecision(board, moves)
     
     def miniMaxDecision(self, board, moves):
-        return max(moves, key=lambda m: self.getMinValue(self.nextBoard(board, self.side, m), self.limit - 1))
+        return max(moves,
+                   key=lambda m: self.getMinValue(self.nextBoard(board, self.side, m),
+                                                  self.limit - 1,
+                                                  -float("inf"),
+                                                  float("inf")))
     
-    def getMinValue(self, board, depth):
+    def getMinValue(self, board, depth, alpha, beta):
         piece = self.opponent(self.side)
         if depth <= 0:
             return self.h(board)
         else:
             moves = self.generateMoves(board, piece)
-            if len(moves) == 0:
-                return float("inf")
-            else:
-                return min(map(lambda m: self.getMaxValue(self.nextBoard(board, piece, m), depth - 1), moves))
-                
-    def getMaxValue(self, board, depth):
+            v = float("inf")
+            for m in moves:
+                v = min(v, self.getMaxValue(self.nextBoard(board, piece, m), depth -1, alpha, beta))
+                if v <= alpha: return v
+                beta = min(beta, v)
+            return v
+            
+    def getMaxValue(self, board, depth, alpha, beta):
         piece = self.side
         if depth <= 0:
             return self.h(board)
         else:
             moves = self.generateMoves(board, piece)
-            if len(moves) == 0:
-                return -float("inf")
-            else:
-                return max(map(lambda m: self.getMinValue(self.nextBoard(board, piece, m), depth - 1), moves)) 
+            v = -float("inf")
+            for m in moves:
+                v = max(v, self.getMinValue(self.nextBoard(board, piece, m), depth - 1, alpha, beta))
+                if v >= beta: return v
+                alpha = max(alpha, v)
+            return v
     
     def numPieces(self, side, board):
         return sum(map(lambda xs: xs.count(side), board))
     
     def movesAvailable(self, board):
         return len(self.generateMoves(board, self.side))
-        
-    """def leastOpponentPieces(self, board):
-        return (lambda m1, m2:
-                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m1)) -
-                self.numPieces(self.opponent(self.side), self.nextBoard(board, self.side, m2)))
-    """
+    
+    def leastOpponentMoves(self, board):
+        moves = self.generateMoves(board, self.opponent(self.side))
+        if len(moves) == 0:
+            return float("inf")
+        else:
+            return 1/len(moves)
+    
+    def combinedMovesMaxMin(self, board):
+        if self.movesAvailable(board) == 0:
+            return -float("inf")
+        else:
+            return self.leastOpponentMoves(board)
+    
 game = Konane(8)
-game.playNGames(10, MinimaxPlayer(8,3), RandomPlayer(8), 0)
+game.playNGames(10, MinimaxPlayer(8,4), RandomPlayer(8), 0)
 
