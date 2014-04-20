@@ -363,8 +363,8 @@ class MinimaxPlayer(Konane, Player):
         
     def initialize(self, side):
         self.side = side
-        self.name = "MiniMax"
-        self.h = self.leastOpponentMoves
+        self.name = "WeightedAvailable"
+        self.h = self.weightedAvailable
     
     def getMove(self, board):
         moves = self.generateMoves(board, self.side)
@@ -377,11 +377,14 @@ class MinimaxPlayer(Konane, Player):
             return self.miniMaxDecision(board, moves)
     
     def miniMaxDecision(self, board, moves):
-        return max(moves,
-                   key=lambda m: self.getMinValue(self.nextBoard(board, self.side, m),
-                                                  self.limit - 1,
-                                                  -float("inf"),
-                                                  float("inf")))
+        alpha = -float("inf")
+        best = moves[0]
+        for m in moves:
+            v = self.getMinValue(self.nextBoard(board, self.side, m), self.limit - 1, alpha, float("inf"))
+            if v > alpha:
+                best = m
+                alpha = v
+        return best
     
     def getMinValue(self, board, depth, alpha, beta):
         piece = self.opponent(self.side)
@@ -428,6 +431,245 @@ class MinimaxPlayer(Konane, Player):
         else:
             return self.leastOpponentMoves(board)
     
-game = Konane(8)
-game.playNGames(10, MinimaxPlayer(8,4), RandomPlayer(8), 0)
+    def movesDifference(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else: return ourMoves - theirMoves
+        
+    def movesRatio(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else: return ourMoves / theirMoves
+    
+    def weightedAvailable(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        ourPieces = self.numPieces(self.side, board)
+        theirPieces = self.numPieces(self.opponent(self.side), board)
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else:
+            return ourMoves*ourMoves + ourPieces - theirMoves*theirMoves - theirPieces
+    
+    
+class RatioPlayer(Konane, Player):
+    def __init__(self, size, depthLimit):
+        Konane.__init__(self, size)
+        self.limit = depthLimit
+        
+    def initialize(self, side):
+        self.side = side
+        self.name = "Ultimate Warrior"
+        self.h = self.ultimateCombined
+    
+    def getMove(self, board):
+        moves = self.generateMoves(board, self.side)
+        n = len(moves)
+        if n == 0:
+            return []
+        elif n == 1:
+            return moves[0]
+        else:
+            return self.miniMaxDecision(board, moves)
+    
+    def miniMaxDecision(self, board, moves):
+        alpha = -float("inf")
+        best = moves[0]
+        for m in moves:
+            v = self.getMinValue(self.nextBoard(board, self.side, m), self.limit - 1, alpha, float("inf"))
+            if v > alpha:
+                best = m
+                alpha = v
+        return best
+    
+    def getMinValue(self, board, depth, alpha, beta):
+        piece = self.opponent(self.side)
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            v = float("inf")
+            for m in moves:
+                v = min(v, self.getMaxValue(self.nextBoard(board, piece, m), depth -1, alpha, beta))
+                if v <= alpha: return v
+                beta = min(beta, v)
+            return v
+            
+    def getMaxValue(self, board, depth, alpha, beta):
+        piece = self.side
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            v = -float("inf")
+            for m in moves:
+                v = max(v, self.getMinValue(self.nextBoard(board, piece, m), depth - 1, alpha, beta))
+                if v >= beta: return v
+                alpha = max(alpha, v)
+            return v
+    
+    def numPieces(self, side, board):
+        return sum(map(lambda xs: xs.count(side), board))
+        
+    def numMoveable(self, side, board):
+        return len(set(map(lambda mv: (mv[0],mv[1]), self.generateMoves(board, side))))
+    
+    def movesAvailable(self, board):
+        return len(self.generateMoves(board, self.side))
+    
+    def leastOpponentMoves(self, board):
+        moves = self.generateMoves(board, self.opponent(self.side))
+        if len(moves) == 0:
+            return float("inf")
+        else:
+            return 1/len(moves)
+    
+    def combinedMovesMaxMin(self, board):
+        if self.movesAvailable(board) == 0:
+            return -float("inf")
+        else:
+            return self.leastOpponentMoves(board)
+    
+    def movesDifference(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else: return ourMoves - theirMoves
+        
+    def movesRatio(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else: return ourMoves / theirMoves
+        
+    def weightedAvailable(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        ourPieces = self.numPieces(self.side, board)
+        theirPieces = self.numPieces(self.opponent(self.side), board)
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else:
+            return ourMoves*20 + ourPieces - theirMoves*20 - theirPieces
+    
+    def ratioCombined(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        ourPieces = self.numPieces(self.side, board)
+        theirPieces = self.numPieces(self.opponent(self.side), board)
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else:
+            return ourMoves*ourPieces/theirMoves/theirPieces
+    
+    def ourMoveable(self, board):
+        ourNumMoveable = self.numMoveable(self.side, board)
+        theirNumMoveable = self.numMoveable(self.opponent(self.side), board)
+        
+        if ourNumMoveable == 0: return -float("inf")
+        elif theirNumMoveable == 0: return float("inf")
+        else:
+            return ourNumMoveable
+    
+    def moveableRatio(self, board):
+        ourNumMoveable = self.numMoveable(self.side, board)
+        theirNumMoveable = self.numMoveable(self.opponent(self.side), board)
+        
+        if ourNumMoveable == 0: return -float("inf")
+        elif theirNumMoveable == 0: return float("inf")
+        else:
+            return ourNumMoveable/theirNumMoveable
+    
+    def ultimateCombined(self, board):
+        ourMoves = len(self.generateMoves(board, self.side))
+        theirMoves = len(self.generateMoves(board, self.opponent(self.side)))
+        ourMoveable = self.numMoveable(self.side, board)
+        theirMoveable = self.numMoveable(self.opponent(self.side), board)
+        ourPieces = self.numPieces(self.side, board)
+        theirPieces = self.numPieces(self.opponent(self.side), board)
+        if theirMoves == 0: return float("inf")
+        elif ourMoves == 0: return -float("inf")
+        else:
+            return ourMoves*ourMoves/2 + ourMoveable*2 + ourPieces - theirMoves*theirMoves/2 - theirPieces - theirMoveable*2
+    
 
+class MongoosePlayer(Konane, Player):
+    def __init__(self, size, depthLimit):
+        Konane.__init__(self, size)
+        self.limit = depthLimit
+        
+    def initialize(self, side):
+        self.side = side
+        self.name = "Mongoose"
+        self.h = self.movesWeightedParabolic
+    
+    def getMove(self, board):
+        moves = self.generateMoves(board, self.side)
+        n = len(moves)
+        if n == 0:
+            return []
+        elif n == 1:
+            return moves[0]
+        else:
+            return self.miniMaxDecision(board, moves)
+    
+    def miniMaxDecision(self, board, moves):
+        alpha = -float("inf")
+        best = moves[0]
+        for m in moves:
+            v = self.getMinValue(self.nextBoard(board, self.side, m), self.limit - 1, alpha, float("inf"))
+            if v > alpha:
+                best = m
+                alpha = v
+        return best
+    
+    def getMinValue(self, board, depth, alpha, beta):
+        piece = self.opponent(self.side)
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            v = float("inf")
+            for m in moves:
+                v = min(v, self.getMaxValue(self.nextBoard(board, piece, m), depth -1, alpha, beta))
+                if v <= alpha: return v
+                beta = min(beta, v)
+            return v
+            
+    def getMaxValue(self, board, depth, alpha, beta):
+        piece = self.side
+        if depth <= 0:
+            return self.h(board)
+        else:
+            moves = self.generateMoves(board, piece)
+            v = -float("inf")
+            for m in moves:
+                v = max(v, self.getMinValue(self.nextBoard(board, piece, m), depth - 1, alpha, beta))
+                if v >= beta: return v
+                alpha = max(alpha, v)
+            return v
+    
+    def numPieces(self, side, board):
+        return sum(map(lambda xs: xs.count(side), board))
+    
+    def movesAvailable(self, side, board):
+        return len(self.generateMoves(board, side))
+    
+    def movesWeightedParabolic(self, board):
+        ourMoves = self.movesAvailable(self.side, board)
+        theirMoves = self.movesAvailable(self.opponent(self.side),board)
+        ourPieces = self.numPieces(self.side, board)
+        theirPieces = self.numPieces(self.opponent(self.side), board)
+        if ourMoves == 0: return -float("inf")
+        elif theirMoves == 0: return float("inf")
+        else:
+            return ourMoves*ourMoves + ourPieces - theirMoves*theirMoves - theirPieces
+    
+game = Konane(8)
+game.playNGames(20, RandomPlayer(8), MongoosePlayer(8,4),0)
