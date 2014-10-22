@@ -1,0 +1,30 @@
+//#1
+grep -icE quid /usr/share/dict/words
+
+// #2
+grep -icE '^([a-z]).*\1$|^[a-z]$' /usr/share/dict/words
+
+//#3
+
+grep -cE '(.{4}).*\1' /usr/share/dict/words
+
+//#4
+grep -icE '([a-z])\1{2}' /usr/share/dict/words
+
+//#5
+grep -icE '([a-z][^a-z]*){20,}' /usr/share/dict/words
+
+//#6
+grep -xicE '.{16,20}' /usr/share/dict/words
+
+//#7
+grep -xvicE '[^a]*|[^e]*|[^i]*|[^o]*|[^u]*' /usr/share/dict/words
+
+//#8
+grep -xicE '[^aeiou]*' /usr/share/dict/words
+
+//#9
+grep -xicE '[^-]*-[^-]*' /usr/share/dict/words
+
+//#10
+grep -icE 'a[^aeiou]*e[^aeiou]*i[^aeiou]*o[^aeiou]*u' /usr/share/dict/words

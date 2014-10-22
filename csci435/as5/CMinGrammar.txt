@@ -1,0 +1,63 @@
+/*
+  Filename   : CMinGrammar.txt
+  Author     : Merv Fansler
+  Course     : CSCI 435
+  Assignment : Assignment 5, C- Parser_1
+  Description: Left-factored grammar for C- language
+*/
+
+01. program --> { declaration }
+
+02. declaration --> VOID ID functionDeclaration |
+    		    INT ID functionOrVariableDeclaration
+		  
+03. functionOrVariableDeclaration --> functionDeclaration |
+    				      [ LBRACK NUM RBRACK ] SEMI
+
+04. functionDeclaration --> LPAREN parameterList RPAREN compoundStatement
+
+05. parameterList --> VOID | parameter { COMMA parameter }
+
+06. parameter --> INT ID [ LBRACK RBRACK ]
+
+07. compoundStatement --> LBRACE localVariableList { statement } RBRACE
+
+08. localVariableList --> { INT ID [ LBRACK NUM RBRACK ] SEMI }
+
+09. statement --> compoundStatement |
+    	      	  ifStatement |
+		  whileStatement |
+		  returnStatement |
+		  expressionStatement
+
+10. ifStatement --> IF LPAREN expression RPAREN statement [ ELSE statement ]
+
+11. whileStatement --> WHILE LPAREN expression RPAREN statement
+
+12. returnStatement --> RETURN expressionStatement
+
+13. expressionStatement --> [ expression ] SEMI
+
+14. expression --> NUM mathematicalExpression |
+    	       	   LPAREN expression RPAREN mathematicalExpression |
+		   ID functionCallOrVariable
+
+15. functionCallOrVariable --> LPAREN argumentList RPAREN mathematicalExpression |
+    			       [ LBRACK expression RBRACK ] assignmentOrMathExpression
+
+16. assignmentOrMathExpression --> ASSIGN expression | mathematicalExpression
+
+17. mathematicalExpression --> [ ( TIMES | DIVIDE ) term ]
+    			       [ ( PLUS | MINUS ) additiveExpression ]
+			       { ( LT | LTE | GT | GTE | EQ | NEQ ) additiveExpression }
+
+18. argumentList --> [ expression { COMMA expression } ]
+
+19. additiveExpression --> term { ( PLUS | MINUS ) additiveExpression }
+
+20. term --> factor { ( TIMES | DIVIDE ) term }
+
+21. factor -> LPAREN expression RPAREN | NUM | ID factorFunctionCallOrVariable
+
+22. factorFunctionCallOrVariable --> LPAREN args RPAREN |
+    				     [ LBRACK expression RBRACK ]
